@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Dólar Oficial</title>
+
+<style>
+
+body{
+margin:0;
+background:#0f1720;
+font-family:Arial, Helvetica, sans-serif;
+display:flex;
+justify-content:center;
+align-items:center;
+height:100vh;
+color:white;
+}
+
+.card{
+background:#18212b;
+padding:20px;
+border-radius:12px;
+width:260px;
+box-shadow:0 6px 16px rgba(0,0,0,0.5);
+}
+
+.title{
+font-size:18px;
+margin-bottom:12px;
+text-align:center;
+}
+
+.row{
+display:flex;
+justify-content:space-between;
+margin-top:8px;
+font-size:16px;
+}
+
+.value{
+font-weight:600;
+color:#22c55e;
+}
+
+.update{
+margin-top:12px;
+font-size:11px;
+opacity:0.6;
+text-align:center;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="card">
+
+<div class="title">🏦 Dólar Oficial</div>
+
+<div class="row">
+<span>Compra</span>
+<span class="value" id="compra">-</span>
+</div>
+
+<div class="row">
+<span>Venta</span>
+<span class="value" id="venta">-</span>
+</div>
+
+<div class="update" id="update">
+Actualizando...
+</div>
+
+</div>
+
+<script>
+
+async function actualizar(){
+
+const r = await fetch("https://dolarapi.com/v1/dolares/oficial");
+const data = await r.json();
+
+document.getElementById("compra").innerText="$"+data.compra;
+document.getElementById("venta").innerText="$"+data.venta;
+
+document.getElementById("update").innerText =
+"Actualizado " + new Date().toLocaleTimeString();
+
+}
+
+actualizar();
+setInterval(actualizar,60000);
+
+</script>
+
+</body>
+</html>
