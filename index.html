@@ -1,121 +1,118 @@
-<!DOCTYPE html> 
-<html>
+<!DOCTYPE html>
+<html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Dólar Oficial</title>
-
 <style>
+  body {
+    margin: 0;
+    background: #000;
+    font-family: 'Courier New', Courier, monospace;
+    
+    /* 🔥 centrado vertical */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+  }
 
-body{
-margin:0;
-/* 🔥 CLAVE PARA GLIDE */
-background: transparent;
+  .ticker-wrap {
+    width: 100%;
+    max-width: 800px; /* más centrado visualmente */
+    overflow: hidden;
+    height: 40px;
+    background-color: #0a0a0a; 
+    border-top: 1px solid #333;
+    border-bottom: 1px solid #333;
+    display: flex;
+    align-items: center;
+  }
 
-font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial;
-display:flex;
-justify-content:center;
-align-items:center;
+  .ticker-track {
+    display: flex;
+    white-space: nowrap;
+    animation: marquee 25s linear infinite;
+  }
 
-/* mejor para embed */
-height:auto;
-padding:10px;
+  .ticker-item {
+    display: inline-block;
+    padding: 0 40px;
+    font-size: 16px;
+    font-weight: bold;
+    color: #fff;
+    letter-spacing: 1px;
+  }
 
-color:#e5e7eb;
-}
+  .label { color: #888; font-size: 13px; text-transform: uppercase; }
+  .value { color: #00ff41; margin-left: 10px; }
+  .sep { color: #d4af37; margin: 0 15px; }
 
-/* CARD */
-.card{
-background: rgba(255,255,255,0.04);
-padding:16px 18px;
-
-border-radius:10px;
-width:100%;
-max-width:300px;
-
-backdrop-filter: blur(8px);
-border:1px solid rgba(255,255,255,0.08);
-
-box-shadow:0 4px 20px rgba(0,0,0,0.4);
-}
-
-/* TITULO */
-.title{
-font-size:13px;
-letter-spacing:1px;
-text-transform:uppercase;
-margin-bottom:12px;
-color:#9ca3af;
-text-align:left;
-}
-
-/* FILAS */
-.row{
-display:flex;
-justify-content:space-between;
-align-items:center;
-
-padding:10px 0;
-font-size:15px;
-
-border-top:1px solid rgba(255,255,255,0.05);
-}
-
-/* VALORES */
-.value{
-font-weight:600;
-color:#f3f4f6;
-}
-
-/* UPDATE */
-.update{
-margin-top:10px;
-font-size:10px;
-color:#6b7280;
-text-align:right;
-}
-
+  @keyframes marquee {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
 </style>
 </head>
-
 <body>
 
-<div class="card">
+<div class="ticker-wrap">
+  <div class="ticker-track" id="track">
+    <div class="ticker-item" id="content">
 
-<div class="title">Dólar Oficial</div>
+      <span class="label">DÓLAR OFICIAL COMPRA:</span> 
+      <span class="value" id="compra">$---</span>
 
-<div class="row">
-<span>Compra</span>
-<span class="value" id="compra">-</span>
-</div>
+      <span class="sep">•</span>
 
-<div class="row">
-<span>Venta</span>
-<span class="value" id="venta">-</span>
-</div>
+      <span class="label">DÓLAR OFICIAL VENTA:</span> 
+      <span class="value" id="venta">$---</span>
 
-<div class="update" id="update">
-Actualizando...
-</div>
+      <span class="sep">•</span>
 
+      <span class="label">STATUS:</span> 
+      <span class="value" id="status" style="color:#d4af37;">CARGANDO</span>
+
+      <span class="sep">•</span>
+
+    </div>
+  </div>
 </div>
 
 <script>
 
-async function actualizar(){
-
-const r = await fetch("https://dolarapi.com/v1/dolares/oficial");
-const data = await r.json();
-
-document.getElementById("compra").innerText="$"+data.compra;
-document.getElementById("venta").innerText="$"+data.venta;
-
-document.getElementById("update").innerText =
-"Actualizado " + new Date().toLocaleTimeString();
-
+function horaActual(){
+  const ahora = new Date();
+  return ahora.toLocaleTimeString('es-AR');
 }
 
-actualizar();
-setInterval(actualizar,60000);
+async function updatePrice() {
+  try {
+    const r = await fetch("https://dolarapi.com/v1/dolares/oficial");
+    const data = await r.json();
+
+    const compraStr = "$" + data.compra.toLocaleString('es-AR', {minimumFractionDigits:2});
+    const ventaStr = "$" + data.venta.toLocaleString('es-AR', {minimumFractionDigits:2});
+
+    document.getElementById('compra').innerText = compraStr;
+    document.getElementById('venta').innerText = ventaStr;
+
+    document.getElementById('status').innerText = "ACTUALIZADO " + horaActual();
+
+    const track = document.getElementById('track');
+    const content = document.getElementById('content');
+
+    if(track.children.length < 2){
+      track.appendChild(content.cloneNode(true));
+      track.appendChild(content.cloneNode(true));
+    }
+
+  } catch (e) {
+    document.getElementById('status').innerText = "ERROR";
+    document.getElementById('status').style.color = "#ff3b30";
+  }
+}
+
+updatePrice();
+setInterval(updatePrice, 60000);
 
 </script>
 
